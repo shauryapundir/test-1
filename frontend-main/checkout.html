@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checkout | Minikids</title>
+
+  <!-- Styles -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .checkout-section { max-width:1200px;margin:auto; }
+    .form-section,.summary-section{
+      background:#fff;border:1px solid #dee2e6;border-radius:.5rem;padding:1.5rem
+    }
+    @media (max-width:767px){ .checkout-section{padding:1rem} }
+  </style>
+</head>
+
+<body>
+  <!-- Re-use your site header if you like -->
+
+  <section class="container my-5 checkout-section">
+    <h2 class="mb-4 text-center fw-bold">Checkout</h2>
+
+    <div class="row g-4">
+      <!-- ✉️  Shipping form -->
+      <div class="col-lg-6 form-section">
+        <h4 class="mb-3">Shipping Details</h4>
+        <form id="checkoutForm">
+          <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="name" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Phone</label>
+            <input type="tel" class="form-control" id="phone" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Shipping Address</label>
+            <textarea class="form-control" id="address" rows="3" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-success w-100">Place Order</button>
+        </form>
+      </div>
+
+      <!-- 🛒  Cart summary -->
+      <div class="col-lg-6 summary-section">
+        <h4 class="mb-3">Your Order</h4>
+        <div id="orderSummary"></div>
+        <hr>
+        <div class="d-flex justify-content-between fw-bold">
+          <span>Total</span>
+          <span id="orderTotal">₹0</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scripts -->
+   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="products.js"></script>
+  <script>
+    /* ===== 1. Build order summary on load ================= */
+    document.addEventListener("DOMContentLoaded", () => {
+      const cart   = JSON.parse(localStorage.getItem("cart")) || [];
+      const box    = document.getElementById("orderSummary");
+      const totalE = document.getElementById("orderTotal");
+
+      if (cart.length === 0) {
+        box.innerHTML = "<p>Your cart is empty.</p>";
+        document.getElementById("checkoutForm").remove();
+        return;
+      }
+
+      let grand = 0;
+      box.innerHTML = cart.map(item => {
+        const subtotal = item.price * item.quantity;
+        grand += subtotal;
+        return `
+          <div class="d-flex justify-content-between mb-2">
+            <span>${item.name} <small class="text-muted">(x${item.quantity})</small></span>
+            <span>₹${subtotal.toLocaleString()}</span>
+          </div>`;
+      }).join("");
+      totalE.textContent = "₹" + grand.toLocaleString();
+
+      /* ===== 2. Handle form submit ======================== */
+      /* ===== 2. Handle form submit with Razorpay =========== */
+document.getElementById("checkoutForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const name    = document.getElementById("name").value;
+  const email   = document.getElementById("email").value;
+  const phone   = document.getElementById("phone").value;
+  const address = document.getElementById("address").value;
+
+  const orderData = {
+    name,
+    email,
+    phone,
+    address,
+    cartItems: cart,
+    amount: grand  // amount in rupees
+  };
+
+  try {
+    // 1. Create Razorpay order via backend
+    const res = await fetch("http://localhost:5500/api/payment/create-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ amount: orderData.amount })
+    });
+
+    const order = await res.json();
+
+    // 2. Launch Razorpay Checkout
+    const options = {
+      key: "rzp_test_********",  // replace with your Razorpay test key
+      amount: order.amount,
+      currency: "INR",
+      name: "Minikids",
+      description: "Order Payment",
+      order_id: order.id,
+      handler: function (response) {
+        // 3. On success
+        console.log("Payment success:", response);
+        localStorage.removeItem("cart");
+        window.location.href = "order-success.html";
+      },
+      prefill: {
+        name,
+        email,
+        contact: phone
+      },
+      theme: {
+        color: "#28a745"
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+
+  } catch (err) {
+    console.error("Payment Error:", err);
+    alert("Something went wrong while creating payment. Please try again.");
+  }
+});
+
+    });
+  </script>
+</body>
+</html>

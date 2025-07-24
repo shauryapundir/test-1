@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Account | Minikids</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .account-wrapper {
+      max-width: 1100px;
+      margin: 60px auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+    .account-sidebar {
+      background-color: #f8f9fa;
+      padding: 30px;
+      min-height: 100%;
+      border-right: 1px solid #dee2e6;
+    }
+    .account-sidebar h5 {
+      margin-bottom: 20px;
+    }
+    .account-sidebar a {
+      display: block;
+      margin: 10px 0;
+      color: #333;
+      text-decoration: none;
+    }
+    .account-content {
+      padding: 30px;
+    }
+    .form-title {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header py-3 bg-white shadow-sm sticky-top">
+    <div class="container d-flex justify-content-between align-items-center">
+      <a href="index.html"><img src="img/logo.jpg" alt="Minikids Logo" class="site-logo" style="height: 40px;"></a>
+      <nav class="d-flex gap-3 align-items-center">
+        <a href="index.html"><span class="material-icons">home</span></a>
+        <a href="shop.html"><span class="material-icons">store</span></a>
+        <a href="wishlist.html"><span class="material-icons">favorite</span></a>
+        <a href="cart.html"><span class="material-icons">shopping_bag</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Account Section -->
+  <section class="account-wrapper row mx-0">
+    <div class="col-md-4 account-sidebar">
+      <h5>My Account</h5>
+      <a href="#" onclick="showTab('dashboard')">Dashboard</a>
+      <a href="#" onclick="showTab('orders')">My Orders</a>
+      <a href="#" onclick="showTab('profile')">My Profile</a>
+      <a href="#" onclick="showTab('login')">Login/Register</a>
+    </div>
+
+    <div class="col-md-8 account-content">
+      <div id="dashboard" class="account-tab">
+        <h4>Welcome to your Dashboard</h4>
+        <p>Here you can manage your orders, profile and account settings.</p>
+      </div>
+
+      <div id="orders" class="account-tab" style="display: none;">
+        <h4>My Orders</h4>
+        <p>No recent orders. Your orders will show up here once placed.</p>
+      </div>
+
+      <div id="profile" class="account-tab" style="display: none;">
+        <h4>My Profile</h4>
+        <form>
+          <div class="mb-3">
+            <label for="profileName" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="profileName" value="John Doe" />
+          </div>
+          <div class="mb-3">
+            <label for="profileEmail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="profileEmail" value="john@example.com" />
+          </div>
+          <button type="submit" class="btn btn-primary">Update Profile</button>
+        </form>
+      </div>
+
+      <div id="login" class="account-tab" style="display: none;">
+        <h4 class="form-title">Login to Your Account</h4>
+        <form id="loginForm">
+          <div class="mb-3">
+            <label for="loginEmail" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="loginEmail" required />
+          </div>
+          <div class="mb-3">
+            <label for="loginPassword" class="form-label">Password</label>
+            <input type="password" class="form-control" id="loginPassword" required />
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Login</button>
+          <div class="text-center mt-3">
+            <small>Don't have an account? <a href="#" onclick="toggleForms()">Register here</a></small>
+          </div>
+        </form>
+
+        <form id="registerForm" style="display: none;">
+          <h4 class="form-title">Create an Account</h4>
+          <div class="mb-3">
+            <label for="registerName" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="registerName" required />
+          </div>
+          <div class="mb-3">
+            <label for="registerEmail" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="registerEmail" required />
+          </div>
+          <div class="mb-3">
+            <label for="registerPassword" class="form-label">Password</label>
+            <input type="password" class="form-control" id="registerPassword" required />
+          </div>
+          <button type="submit" class="btn btn-success w-100">Register</button>
+          <div class="text-center mt-3">
+            <small>Already have an account? <a href="#" onclick="toggleForms()">Login here</a></small>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function showTab(tabId) {
+      document.querySelectorAll('.account-tab').forEach(tab => tab.style.display = 'none');
+      document.getElementById(tabId).style.display = 'block';
+    }
+
+    function toggleForms() {
+      const login = document.getElementById("loginForm");
+      const register = document.getElementById("registerForm");
+      login.style.display = login.style.display === "none" ? "block" : "none";
+      register.style.display = register.style.display === "none" ? "block" : "none";
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      alert("Login submitted. Backend will handle it.");
+    });
+
+    document.getElementById("registerForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      alert("Registration submitted. Backend will handle it.");
+    });
+  </script>
+</body>
+</html>
